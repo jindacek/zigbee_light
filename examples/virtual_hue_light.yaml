@@ -1,11 +1,16 @@
+# Board: Espressif ESP32-C6-DevKitM-1 (Espressif)
+# Definition: definitions/boards/esp32-c6-devkitm-1/manifest.yaml
+
 esphome:
-  name: zigbee-light-test
-  friendly_name: Zigbee Light Test
+  name: 111-zigbee-light-test
+  friendly_name: 111_zigbee-light-test
 
 esp32:
-  variant: ESP32C6
+  variant: esp32c6
+  flash_size: 4MB
   framework:
     type: esp-idf
+
 
 logger:
   level: DEBUG
@@ -19,7 +24,30 @@ zigbee:
   name: "Jindacek Zigbee Light"
   manufacturer: "Jindacek"
   router: true
-  components: all
+
+  endpoints:
+    - num: 11
+      device_type: DIMMABLE_LIGHT
+      clusters:
+        - id: ON_OFF
+          attributes:
+            - attribute_id: 0
+              type: bool
+              on_value:
+                then:
+                  - light.control:
+                      id: virtual_light
+                      state: !lambda "return (bool)x;"
+
+        - id: LEVEL
+          attributes:
+            - attribute_id: 0
+              type: UINT8
+              on_value:
+                then:
+                  - light.control:
+                      id: virtual_light
+                      brightness: !lambda "return ((float)x)/254.0f;"
 
 output:
   - platform: template
