@@ -1,1 +1,38 @@
+esphome:
+  name: zigbee-light-test
+  friendly_name: Zigbee Light Test
 
+esp32:
+  variant: ESP32C6
+  framework:
+    type: esp-idf
+
+logger:
+  level: DEBUG
+
+external_components:
+  - source: github://luar123/zigbee_esphome
+    components: [zigbee]
+
+zigbee:
+  id: zb
+  name: "Jindacek Zigbee Light"
+  manufacturer: "Jindacek"
+  router: true
+  components: all
+
+output:
+  - platform: template
+    id: virtual_output
+    type: float
+    write_action:
+      - lambda: |-
+          ESP_LOGI("zigbee_light", "Brightness: %.1f %%", state * 100.0f);
+
+light:
+  - platform: monochromatic
+    id: virtual_light
+    name: "Virtual Dimmable Light"
+    output: virtual_output
+    gamma_correct: 1.0
+    default_transition_length: 0s
